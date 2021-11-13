@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  micro-addresses:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: addresses
+    ports:
+      - '8002:8002'
+    networks:
+      - address-db-network
+      - api-network
+      - rabbit-network
+    depends_on:
+      - db
+
+  db:
+    container_name: address-db
+    image: mysql
+    restart: on-failure
+    environment:
+      MYSQL_DATABASE: 'address-db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    expose:
+      - '3306'
+    networks:
+      - address-db-network
+    volumes:
+      - micro-address-volume:/var/lib/mysql
+
+
+volumes:
+  micro-address-volume:
+    external: true
+
+
+networks:
+  api-network:
+    external: true
+
+  rabbit-network:
+    external: true
+
+  address-db-network:
+    external: true
